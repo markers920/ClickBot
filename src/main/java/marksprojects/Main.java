@@ -51,32 +51,16 @@ public class Main {
 		int numberLiked = 0;
 		Set<String> usersVisited = new HashSet<String>();
 		for(int profileIndex = 1; true; profileIndex++) {
-			if(profileIndex % 10 == 0) {
-				System.out.println("pausing for a break");
-				Functions.sleep(5000 + random.nextInt(500));
-			}
+			long startTime = System.currentTimeMillis();
 			
+			boolean resetSettings = false;
 			if(random.nextDouble() < 0.10) {
 				System.out.println("adjusting settings");
 				adjustSettings();
+				resetSettings = true;
 			}
 			
-			long startTime = System.currentTimeMillis();
-			
-			clickBrowseMatches();
-			
-			//click profile
-			int[] profileMainX = {652, 943, 1240};
-			int[] profileMainY = {500, 920};
-			Point profileMain = Functions.wiggle(
-					random, 
-					new Point(
-							profileMainX[random.nextInt(profileMainX.length)], 
-							profileMainY[random.nextInt(profileMainY.length)]), 
-					5, 5);
-			Functions.moveMouse(random, robot, profileMain, 1, 0);
-			Functions.mouseClick(robot);
-			Functions.sleep(1500 + random.nextInt(500));
+			getNewProfile(resetSettings || profileIndex == 1);
 			
 			//get username and stats
 			String copyString = Functions.copyText(random, robot, new Point(977, 404), new Point(670, 354), 5);
@@ -106,6 +90,9 @@ public class Main {
 					Functions.moveMouse(random, robot, likeButton, 1, 0);
 					Functions.mouseClick(robot);
 					Functions.sleep(1500 + random.nextInt(500));
+					System.out.println("================================================");
+					System.out.println("LIKED: " + userName);
+					System.out.println("================================================");
 					numberLiked++;
 				}
 			}
@@ -117,7 +104,7 @@ public class Main {
 			Functions.sleep(1500 + random.nextInt(500));
 			
 			//press right/left random combo
-			int pictureCount = 0 + random.nextInt(5);
+			int pictureCount = 0 + random.nextInt(3);
 			for(int pictureIndex = 0; pictureIndex < pictureCount; pictureIndex++) {
 				int directionKey;
 				//if(random.nextBoolean()) {
@@ -130,7 +117,7 @@ public class Main {
 				robot.keyPress(directionKey);
 				Functions.sleep(10 + random.nextInt(5));
 				robot.keyRelease(directionKey);
-				Functions.sleep(1500 + random.nextInt(500));
+				Functions.sleep(1000 + random.nextInt(500));
 			}
 			
 			//press escape
@@ -139,48 +126,19 @@ public class Main {
 			robot.keyRelease(KeyEvent.VK_ESCAPE);
 			Functions.sleep(1500 + random.nextInt(500));
 			
-			//click more - not always a "more" on short pages
-			//Point moreButton = Functions.wiggle(random, new Point(537, 964), 4, 1);
-			//Functions.moveMouse(random, robot, moreButton, 1, 0);
-			//Functions.mouseClick(robot);
-			//Functions.sleep(1500 + random.nextInt(500));
-			
-			//scroll down (random)
-			//int scrollDownAmount = 5 + random.nextInt(3);
-			//Functions.mouseScroll(robot, false, scrollDownAmount, 200);
-			//Functions.sleep(1500 + random.nextInt(500));
-			//
-			//scroll up (amt down + extra)
-			//Functions.mouseScroll(robot, true, scrollDownAmount+2, 200);
-			//Functions.sleep(1500 + random.nextInt(500));
-			
-			//scroll down 5
-			//Functions.mouseScroll(robot, false, 5, 200);
-			//Functions.sleep(1500 + random.nextInt(500));
-			
-			//click random new profile
-			//int[] profileSubX = {1108, 1190, 1270};
-			//int[] profileSubY = {900, 980};
-			//Point profileSUB = Functions.wiggle(
-			//		random, 
-			//		new Point(
-			//				profileSubX[random.nextInt(profileSubX.length)], 
-			//				profileSubY[random.nextInt(profileSubY.length)]), 
-			//		5, 5);
-			//Functions.moveMouse(random, robot, profileSUB, 1, 0);
-			//Functions.mouseClick(robot);
-			//Functions.sleep(1000 + random.nextInt(1000));
 			
 			long endTime = System.currentTimeMillis();
 			long duration = (endTime - startTime);
 			
 			runTimeSum += duration;
 			
-			System.out.println("profileIndex: " + profileIndex);
-			System.out.println("\trun duration: " + duration);
-			System.out.println("\taverage run duration: " + (runTimeSum/profileIndex));
-			System.out.println("\tunique users visited: " + usersVisited.size());
-			System.out.println("\tnumber liked: " + numberLiked);
+			if(profileIndex % 20 == 0) {
+				System.out.println("profileIndex: " + profileIndex);
+				System.out.println("\trun duration: " + duration);
+				System.out.println("\taverage run duration: " + (runTimeSum/profileIndex));
+				System.out.println("\tunique users visited: " + usersVisited.size() + "\t" + ((double)usersVisited.size()/profileIndex));
+				System.out.println("\tnumber liked: " + numberLiked);
+			}
 		}
 	}
 	
@@ -190,6 +148,61 @@ public class Main {
 		Functions.moveMouse(random, robot, browseMatches, 1, 0);
 		Functions.mouseClick(robot);
 		Functions.sleep(1500 + random.nextInt(500));
+	}
+	
+	private static void getNewProfile(boolean goToBrowse) throws InterruptedException {
+		if(goToBrowse) {
+			System.out.println("getNewProfile orig");
+			clickBrowseMatches();
+			
+			//click profile
+			int[] profileMainX = {652, 943, 1240};
+			int[] profileMainY = {500, 920};
+			Point profileMain = Functions.wiggle(
+					random, 
+					new Point(
+							profileMainX[random.nextInt(profileMainX.length)], 
+							profileMainY[random.nextInt(profileMainY.length)]), 
+					5, 5);
+			Functions.moveMouse(random, robot, profileMain, 1, 0);
+			Functions.mouseClick(robot);
+			Functions.sleep(1500 + random.nextInt(500));
+		} else {
+			//System.out.println("getNewProfile recommended");
+			//scroll to the bottom
+			//System.out.println("scroll down");
+			for(int i = 0; i < 10; i++) {
+				robot.keyPress(KeyEvent.VK_PAGE_DOWN);
+				Functions.sleep(10);
+				robot.keyRelease(KeyEvent.VK_PAGE_DOWN);
+				Functions.sleep(200);
+			}
+			
+			//move to white just above blue banner
+			//System.out.println("move to bottom");
+			int[] profileSubX = {1110, 1190, 1270, 1350,};
+			int profileSubY = 940;
+			Point position = new Point(profileSubX[random.nextInt(profileSubX.length)], profileSubY);
+			Functions.moveMouse(random, robot, position, 1, 0);
+			//1110 1190 1270 1350
+			//940
+			
+			//go up until find non white
+			//java.awt.Color[r=250,g=251,b=253]
+			Color color = robot.getPixelColor(position.x, position.y);
+			//System.out.println("crawl up");
+			while(Math.abs(color.getRed()-250) < 5 && 
+					Math.abs(color.getGreen()-251) < 5 && 
+					Math.abs(color.getBlue()-253) < 5) {
+				
+				position = new Point(position.x, position.y-10);
+				Functions.moveMouse(random, robot, position, 1, 0);
+				color = robot.getPixelColor(position.x, position.y);
+			}
+			
+			Functions.mouseClick(robot);
+			Functions.sleep(1000 + random.nextInt(1000));
+		}
 	}
 	
 	private static void adjustSettings() throws InterruptedException {
