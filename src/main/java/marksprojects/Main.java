@@ -56,7 +56,7 @@ public class Main {
 				Functions.sleep(5000 + random.nextInt(500));
 			}
 			
-			if(true) {	//profileIndex % 5 == 0) {
+			if(random.nextDouble() < 0.10) {
 				System.out.println("adjusting settings");
 				adjustSettings();
 			}
