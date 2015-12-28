@@ -16,6 +16,19 @@ public class Main {
 	private static Random random = new Random(0);
 	private static Robot robot;
 	
+	private static int[] DIGIT_KEYS = {
+		KeyEvent.VK_0,
+		KeyEvent.VK_1,
+		KeyEvent.VK_2,
+		KeyEvent.VK_3,
+		KeyEvent.VK_4,
+		KeyEvent.VK_5,
+		KeyEvent.VK_6,
+		KeyEvent.VK_7,
+		KeyEvent.VK_8,
+		KeyEvent.VK_9,
+	};
+	
 	public static void main(String[] args) throws AWTException, InterruptedException, UnsupportedFlavorException, IOException {
 		robot = new Robot();
 		
@@ -33,6 +46,7 @@ public class Main {
 		Functions.mouseClick(robot);
 		Functions.sleep(1500 + random.nextInt(500));
 		
+		
 		double runTimeSum = 0.0;
 		int numberLiked = 0;
 		Set<String> usersVisited = new HashSet<String>();
@@ -42,13 +56,14 @@ public class Main {
 				Functions.sleep(5000 + random.nextInt(500));
 			}
 			
+			if(true) {	//profileIndex % 5 == 0) {
+				System.out.println("adjusting settings");
+				adjustSettings();
+			}
+			
 			long startTime = System.currentTimeMillis();
 			
-			//click browse matches
-			Point browseMatches = Functions.wiggle(random, new Point(182, 204), 3, 2);
-			Functions.moveMouse(random, robot, browseMatches, 1, 0);
-			Functions.mouseClick(robot);
-			Functions.sleep(1500 + random.nextInt(500));
+			clickBrowseMatches();
 			
 			//click profile
 			int[] profileMainX = {652, 943, 1240};
@@ -167,5 +182,96 @@ public class Main {
 			System.out.println("\tunique users visited: " + usersVisited.size());
 			System.out.println("\tnumber liked: " + numberLiked);
 		}
+	}
+	
+	//click browse matches
+	private static void clickBrowseMatches() throws InterruptedException {
+		Point browseMatches = Functions.wiggle(random, new Point(182, 204), 3, 2);
+		Functions.moveMouse(random, robot, browseMatches, 1, 0);
+		Functions.mouseClick(robot);
+		Functions.sleep(1500 + random.nextInt(500));
+	}
+	
+	private static void adjustSettings() throws InterruptedException {
+		clickBrowseMatches();
+		
+		if(random.nextDouble() < 0.95) {
+			//click the age option
+			Functions.moveMouse(random, robot, new Point(830, 270), 1, 0);
+			Functions.mouseClick(robot);
+			Functions.sleep(1500 + random.nextInt(500));
+			
+			//lower age
+			Functions.moveMouse(random, robot, new Point(790, 365), 1, 0);
+			Functions.mouseClick(robot);
+			Functions.sleep(1500 + random.nextInt(500));
+			
+			for(int i = 0; i < 2; i++) {
+				robot.keyPress(KeyEvent.VK_BACK_SPACE);
+				Functions.sleep(10);
+				robot.keyRelease(KeyEvent.VK_BACK_SPACE);
+				Functions.sleep(500);
+			}
+			
+			int lowerAge = 18 + random.nextInt(7);
+			
+			int tensPlace = DIGIT_KEYS[lowerAge / 10];
+			robot.keyPress(tensPlace);
+			Functions.sleep(10);
+			robot.keyRelease(tensPlace);
+			Functions.sleep(500);
+			
+			int onesPlace = DIGIT_KEYS[lowerAge % 10];
+			robot.keyPress(onesPlace);
+			Functions.sleep(10);
+			robot.keyRelease(onesPlace);
+			Functions.sleep(500);
+			
+			
+			//upper age
+			Functions.moveMouse(random, robot, new Point(900, 365), 1, 0);
+			Functions.mouseClick(robot);
+			Functions.sleep(1500 + random.nextInt(500));
+			
+			for(int i = 0; i < 2; i++) {
+				robot.keyPress(KeyEvent.VK_BACK_SPACE);
+				Functions.sleep(10);
+				robot.keyRelease(KeyEvent.VK_BACK_SPACE);
+				Functions.sleep(500);
+			}
+			
+			int upperAge = Math.min(lowerAge+12, 40);
+			
+			tensPlace = DIGIT_KEYS[upperAge / 10];
+			robot.keyPress(tensPlace);
+			Functions.sleep(10);
+			robot.keyRelease(tensPlace);
+			Functions.sleep(500);
+			
+			onesPlace = DIGIT_KEYS[upperAge % 10];
+			robot.keyPress(onesPlace);
+			Functions.sleep(10);
+			robot.keyRelease(onesPlace);
+			Functions.sleep(500);
+		}
+		
+		if(random.nextDouble() < 0.95) {
+			//click distance
+			Functions.moveMouse(random, robot, new Point(950, 270), 1, 0);
+			Functions.mouseClick(robot);
+			Functions.sleep(1500 + random.nextInt(500));
+			
+			if(random.nextDouble() < 0.7) {	//10 miles
+				Functions.moveMouse(random, robot, new Point(950, 360), 1, 0);
+				Functions.mouseClick(robot);
+				Functions.sleep(1500 + random.nextInt(500));
+			}
+			else {		//25 miles
+				Functions.moveMouse(random, robot, new Point(1000, 360), 1, 0);
+				Functions.mouseClick(robot);
+				Functions.sleep(1500 + random.nextInt(500));
+			}
+		}
+		
 	}
 }
