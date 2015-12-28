@@ -3,7 +3,13 @@ package marksprojects;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.Random;
 
 public class Functions {
@@ -71,5 +77,38 @@ public class Functions {
 			robot.mouseWheel(direction);
 			sleep(sleepTime);
 		}
+	}
+	
+	public static String getClipboardContent() throws UnsupportedFlavorException, IOException {
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		Clipboard clipboard = toolkit.getSystemClipboard();
+		return (String) clipboard.getData(DataFlavor.stringFlavor);
+	}
+	
+	public static String copyText(Random random, Robot robot, Point p1, Point p2, double pixelsPerMillisecond) throws InterruptedException, UnsupportedFlavorException, IOException {
+		Functions.moveMouse(random, robot, p1, pixelsPerMillisecond, 0);
+		sleep(500);
+		robot.mousePress(InputEvent.BUTTON1_MASK);
+		sleep(500);
+		Functions.moveMouse(random, robot, p2, pixelsPerMillisecond, 0);
+		sleep(500);
+		robot.mouseRelease(InputEvent.BUTTON1_MASK);
+		sleep(500);
+		
+		//TODO: fix this position
+		//Functions.moveMouse(random, robot, new Point((p1.x + p2.x)/2, (p1.y + p2.y)/2), pixelsPerMillisecond, 0);
+		Functions.moveMouse(random, robot, new Point(p2.x+50, p2.y), pixelsPerMillisecond, 0);
+		sleep(500);
+		
+		robot.keyPress(KeyEvent.VK_CONTROL);
+		Functions.sleep(100);
+		robot.keyPress(KeyEvent.VK_C);
+		Functions.sleep(10);
+		robot.keyRelease(KeyEvent.VK_C);
+		Functions.sleep(100);
+		robot.keyRelease(KeyEvent.VK_CONTROL);
+		Functions.sleep(1500);
+		
+		return getClipboardContent();
 	}
 }

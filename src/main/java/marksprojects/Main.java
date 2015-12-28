@@ -1,17 +1,22 @@
 package marksprojects;
 
 import java.awt.AWTException;
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.Robot;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 public class Main {
 
 	private static Random random = new Random(0);
 	private static Robot robot;
 	
-	public static void main(String[] args) throws AWTException, InterruptedException {
+	public static void main(String[] args) throws AWTException, InterruptedException, UnsupportedFlavorException, IOException {
 		robot = new Robot();
 		
 		//initial wait to allow window shift 
@@ -22,26 +27,26 @@ public class Main {
 			Functions.sleep(1000);
 		}
 		
-		//Functions.moveMouse(random, robot, new Point(1000, 500), 0.5, 0);
-		
 		//click logo
 		Point logo = Functions.wiggle(random, new Point(55, 197), 3, 2);
-		Functions.moveMouse(random, robot, logo, 0.5, 0);
+		Functions.moveMouse(random, robot, logo, 1, 0);
 		Functions.mouseClick(robot);
 		Functions.sleep(1500 + random.nextInt(500));
 		
 		double runTimeSum = 0.0;
+		int numberLiked = 0;
+		Set<String> usersVisited = new HashSet<String>();
 		for(int profileIndex = 1; true; profileIndex++) {
-			long startTime = System.currentTimeMillis();
-			
 			if(profileIndex % 10 == 0) {
 				System.out.println("pausing for a break");
 				Functions.sleep(5000 + random.nextInt(500));
 			}
 			
+			long startTime = System.currentTimeMillis();
+			
 			//click browse matches
 			Point browseMatches = Functions.wiggle(random, new Point(182, 204), 3, 2);
-			Functions.moveMouse(random, robot, browseMatches, 0.5, 0);
+			Functions.moveMouse(random, robot, browseMatches, 1, 0);
 			Functions.mouseClick(robot);
 			Functions.sleep(1500 + random.nextInt(500));
 			
@@ -54,13 +59,45 @@ public class Main {
 							profileMainX[random.nextInt(profileMainX.length)], 
 							profileMainY[random.nextInt(profileMainY.length)]), 
 					5, 5);
-			Functions.moveMouse(random, robot, profileMain, 0.5, 0);
+			Functions.moveMouse(random, robot, profileMain, 1, 0);
 			Functions.mouseClick(robot);
 			Functions.sleep(1500 + random.nextInt(500));
 			
+			//get username and stats
+			String copyString = Functions.copyText(random, robot, new Point(977, 404), new Point(670, 354), 5);
+			//System.out.println("copyString: " + copyString);
+			String[] copySplit1 = copyString.split("\n");
+			String userName = copySplit1[0].trim();
+			String[] copySplit2 = copySplit1[1].split("•");
+			int age = Integer.parseInt(copySplit2[0]);
+			//String location = copySplit2[1];
+			int percentage = Integer.parseInt(copySplit2[2].substring(1, 3));
+			//System.out.println("\tusername: " + userName);
+			//System.out.println("\tage: " + age);
+			//System.out.println("\tlocation: " + location);
+			//System.out.println("\tpercentage: " + percentage);
+			
+			usersVisited.add(userName);
+			
+			if(percentage > 90 || (percentage > 70 && age < 22)) {
+				Color color = robot.getPixelColor(1162, 379);
+				//java.awt.Color[r=255,g=217,b=57]
+				if(Math.abs(color.getRed()-255) < 5 && 
+						Math.abs(color.getGreen()-217) < 5 && 
+						Math.abs(color.getBlue()-57) < 5) {
+					//then already liked!
+				} else {
+					Point likeButton = Functions.wiggle(random, new Point(1200, 375), 5, 2);
+					Functions.moveMouse(random, robot, likeButton, 1, 0);
+					Functions.mouseClick(robot);
+					Functions.sleep(1500 + random.nextInt(500));
+					numberLiked++;
+				}
+			}
+			
 			//click photo
 			Point profilePhoto = Functions.wiggle(random, new Point(580, 376), 5, 5);
-			Functions.moveMouse(random, robot, profilePhoto, 0.5, 0);
+			Functions.moveMouse(random, robot, profilePhoto, 1, 0);
 			Functions.mouseClick(robot);
 			Functions.sleep(1500 + random.nextInt(500));
 			
@@ -89,7 +126,7 @@ public class Main {
 			
 			//click more - not always a "more" on short pages
 			//Point moreButton = Functions.wiggle(random, new Point(537, 964), 4, 1);
-			//Functions.moveMouse(random, robot, moreButton, 0.5, 0);
+			//Functions.moveMouse(random, robot, moreButton, 1, 0);
 			//Functions.mouseClick(robot);
 			//Functions.sleep(1500 + random.nextInt(500));
 			
@@ -115,10 +152,9 @@ public class Main {
 			//				profileSubX[random.nextInt(profileSubX.length)], 
 			//				profileSubY[random.nextInt(profileSubY.length)]), 
 			//		5, 5);
-			//Functions.moveMouse(random, robot, profileSUB, 0.5, 0);
+			//Functions.moveMouse(random, robot, profileSUB, 1, 0);
 			//Functions.mouseClick(robot);
-			
-			Functions.sleep(3000 + random.nextInt(1000));
+			//Functions.sleep(1000 + random.nextInt(1000));
 			
 			long endTime = System.currentTimeMillis();
 			long duration = (endTime - startTime);
@@ -128,6 +164,8 @@ public class Main {
 			System.out.println("profileIndex: " + profileIndex);
 			System.out.println("\trun duration: " + duration);
 			System.out.println("\taverage run duration: " + (runTimeSum/profileIndex));
+			System.out.println("\tunique users visited: " + usersVisited.size());
+			System.out.println("\tnumber liked: " + numberLiked);
 		}
 	}
 }
